@@ -13,64 +13,59 @@
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            /* Inspired by the dark background in the design */
             background-color: #111111;
             background-image: radial-gradient(circle at top right, rgba(121, 69, 255, 0.15), transparent 40%),
                               radial-gradient(circle at bottom left, rgba(69, 128, 255, 0.15), transparent 50%);
         }
 
-        /* --- MODERN SLOT MACHINE STYLES --- */
-        #slot-machine {
-            height: 240px; /* Defines the viewing window height */
-            width: 100%;
+        /* --- MODERN 3D DICE STYLES --- */
+        #dice-scene {
+            width: 220px;
+            height: 220px;
+            perspective: 1200px;
             margin: 1.5rem auto;
-            border-radius: 0.75rem; /* rounded-xl */
-            overflow: hidden;
-            position: relative;
-            background-color: rgba(255, 255, 255, 0.03);
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
         }
 
-        #reel {
+        #cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
             /* Spin animation: duration and a modern easing function */
             transition: transform 4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .reel-item {
-            height: 60px; /* Each item must have a fixed height */
+        .cube-face {
+            position: absolute;
+            width: 220px;
+            height: 220px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem; /* 24px */
-            font-weight: 500; /* medium */
+            text-align: center;
+            padding: 1.5rem;
+            box-sizing: border-box;
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 2px solid #8B5CF6;
+            border-radius: 1.25rem;
+            font-size: 1.875rem; /* 30px */
+            font-weight: 600; /* semibold */
             color: #d1d5db; /* text-gray-300 */
         }
-
-        /* The pointer/selector line in the middle */
-        #slot-machine::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0.5rem;
-            right: 0.5rem;
-            transform: translateY(-50%);
-            height: 60px; /* Match reel-item height */
-            background: rgba(139, 92, 246, 0.1); /* deep-purple-500 with opacity */
-            border-radius: 0.5rem; /* rounded-lg */
-            border-top: 2px solid #8B5CF6; /* deep-purple-500 */
-            border-bottom: 2px solid #8B5CF6; /* deep-purple-500 */
-            box-sizing: border-box;
-        }
-
-        /* Gradient mask for fading items */
-        #slot-machine {
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);
-        }
         
-        /* Custom border/background inspired by the design */
+        /* Position each face in 3D space to form a cube */
+        .front  { transform: rotateY(0deg) translateZ(110px); }
+        .back   { transform: rotateY(180deg) translateZ(110px); }
+        .right  { transform: rotateY(90deg) translateZ(110px); }
+        .left   { transform: rotateY(-90deg) translateZ(110px); }
+        .top    { transform: rotateX(90deg) translateZ(110px); }
+        .bottom { transform: rotateX(-90deg) translateZ(110px); }
+        
+        /* Custom border/background for the main card */
         .card-style {
-            background-color: rgba(28, 28, 30, 0.6); /* Semi-transparent dark background */
+            background-color: rgba(28, 28, 30, 0.6);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -86,7 +81,7 @@
         <div id="main-menu-view">
             <header class="text-center mb-10">
                 <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-100 tracking-tight">🤷‍♂️</h1>
-                <p class="mt-3 text-lg text-gray-400">Náhodný rozhodovač,či čo.</p>
+                <p class="mt-3 text-lg text-gray-400">Náhodný rozhodovač, či čo.</p>
             </header>
             <div class="space-y-4">
                 <button data-view="genre-view" class="menu-button w-full p-5 text-left card-style rounded-xl hover:border-violet-400 transition-all duration-300 flex items-center space-x-4">
@@ -126,17 +121,25 @@
             <div class="text-center">
                 <h2 id="selection-title" class="text-2xl md:text-3xl font-bold text-gray-100 mb-2"></h2>
 
-                <div id="slot-machine-container">
-                    <div id="slot-machine">
-                        <div id="reel"></div>
+                <div id="dice-scene-container">
+                    <div id="dice-scene">
+                        <div id="cube">
+                            <div class="cube-face front">?</div>
+                            <div class="cube-face back"></div>
+                            <div class="cube-face right"></div>
+                            <div class="cube-face left"></div>
+                            <div class="cube-face top"></div>
+                            <div class="cube-face bottom"></div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="h-16 flex items-center justify-center"> <p id="result-text" class="text-3xl font-bold text-violet-400 transition-all"></p>
+                <div class="h-16 flex items-center justify-center">
+                    <p id="result-text" class="text-3xl font-bold text-violet-400 transition-all"></p>
                 </div>
 
                 <button id="startButton" class="w-full sm:w-auto mt-2 px-10 py-4 bg-violet-600 text-white font-bold text-lg rounded-lg hover:bg-violet-700 focus:outline-none focus:ring-4 focus:ring-violet-400/50 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105">
-                    Spustiť
+                    Hodiť kockou
                 </button>
             </div>
         </div>
@@ -153,11 +156,11 @@
         'yes-no-view': {
             title: 'Rozhodovač Áno / Nie',
             resultPrefix: 'Odpoveď je:',
-            values: ['Áno 👍', 'Nie 👎', 'Určite! ✅', 'Ani náhodou ❌']
+            values: ['Áno 👍', 'Nie 👎', 'Určite! ✅', 'Ani náhodou ❌', 'Možno 🤔', 'Skús znova 🤷‍♀️']
         },
         'streaming-view': {
             title: 'Ktorú streamingovú službu?',
-            resultPrefix: 'Zpni si:',
+            resultPrefix: 'Zapni si:',
             values: ['Netflix', 'HBO Max', 'Disney+', 'SkyShowtime', ]
         }
     };
@@ -168,7 +171,8 @@
     const menuButtons = document.querySelectorAll('.menu-button');
     const backButton = document.getElementById('back-button');
     const selectionTitle = document.getElementById('selection-title');
-    const reel = document.getElementById('reel');
+    const cube = document.getElementById('cube');
+    const cubeFaces = document.querySelectorAll('.cube-face');
     const startButton = document.getElementById('startButton');
     const resultText = document.getElementById('result-text');
 
@@ -177,7 +181,6 @@
 
     // --- VIEW SWITCHING ---
     function showView(viewId) {
-        // Add a fade effect for smoother transitions
         document.body.style.transition = 'opacity 0.3s ease-in-out';
         document.body.style.opacity = '0';
 
@@ -194,7 +197,7 @@
                 selectionView.classList.remove('hidden');
                 setupSelection(viewId);
             }
-             document.body.style.opacity = '1';
+            document.body.style.opacity = '1';
         }, 300);
     }
 
@@ -204,76 +207,80 @@
             currentSelectionRunner.cleanup();
         }
         const source = dataSources[viewId];
-        currentSelectionRunner = createSelectionRunner(source.values, source.resultPrefix);
+        currentSelectionRunner = createDiceRunner(source.values, source.resultPrefix);
         selectionTitle.textContent = source.title;
-        currentSelectionRunner.populateReel();
+        currentSelectionRunner.reset();
         startButton.onclick = () => currentSelectionRunner.run();
         resultText.textContent = ''; // Clear previous result
         startButton.disabled = false; // Ensure button is enabled
+        startButton.textContent = 'Hodiť kockou';
     }
 
-    // --- SLOT MACHINE LOGIC ---
-    function createSelectionRunner(values, prefix) {
-        const itemHeight = 60; // Must match .reel-item height in CSS
-        const windowHeight = 240; // Must match #slot-machine height in CSS
-        const originalValues = [...values];
+    // --- 3D DICE LOGIC ---
+    function createDiceRunner(values, prefix) {
+        // Defines the target rotation to show each face
+        const faceRotations = [
+            { name: 'front',  x: 0, y: 0 },
+            { name: 'right',  x: 0, y: -90 },
+            { name: 'back',   x: 0, y: -180 },
+            { name: 'left',   x: 0, y: 90 },
+            { name: 'top',    x: -90, y: 0 },
+            { name: 'bottom', x: 90, y: 0 }
+        ];
 
-        const populateReel = () => {
-            reel.innerHTML = '';
-            reel.style.transition = 'none';
-            reel.style.transform = 'translateY(0)';
-
-            // Create multiple sets of items for a seamless "infinite" spin
-            const clones = 5;
-            const reelItems = Array.from({ length: clones }).flatMap(() => originalValues);
-
-            reelItems.forEach(value => {
-                const item = document.createElement('div');
-                item.classList.add('reel-item');
-                item.textContent = value;
-                reel.appendChild(item);
-            });
+        const reset = () => {
+            cube.style.transition = 'none';
+            cube.style.transform = `rotateX(0deg) rotateY(0deg)`;
+            cubeFaces.forEach(face => face.textContent = '');
+            cube.querySelector('.front').textContent = '?';
         };
 
         const cleanup = () => {
-            reel.innerHTML = '';
+            reset();
         };
 
         const run = () => {
             startButton.disabled = true;
             resultText.textContent = '';
-            reel.style.transition = `transform ${SPIN_DURATION_MS / 1000}s cubic-bezier(0.34, 1.56, 0.64, 1)`;
 
-            const randomIndex = Math.floor(Math.random() * originalValues.length);
-            const selectedValue = originalValues[randomIndex];
+            // 1. Shuffle the source values to get a random order
+            const shuffledValues = [...values].sort(() => 0.5 - Math.random());
+
+            // 2. Populate all 6 faces with different values
+            faceRotations.forEach((faceInfo, index) => {
+                const faceElement = cube.querySelector(`.${faceInfo.name}`);
+                // Use the modulo operator to loop through values if there are fewer than 6
+                faceElement.textContent = shuffledValues[index % shuffledValues.length];
+            });
             
-            const targetIndex = randomIndex + (originalValues.length * 2);
+            // 3. Pick a random face to be the "winner"
+            const randomFaceIndex = Math.floor(Math.random() * faceRotations.length);
+            const targetFace = faceRotations[randomFaceIndex];
+            const selectedValue = cube.querySelector(`.${targetFace.name}`).textContent;
 
-            const targetPosition = - (targetIndex * itemHeight) + (windowHeight / 2) - (itemHeight / 2);
+            // 4. Calculate the final rotation
+            const fullSpinsX = 5;
+            const fullSpinsY = 5;
+            const finalX = (fullSpinsX * 360) + targetFace.x;
+            const finalY = (fullSpinsY * 360) + targetFace.y;
 
-            reel.style.transform = `translateY(${targetPosition}px)`;
-
+            // 5. Apply the transition and transform to start the spin
+            cube.style.transition = `transform ${SPIN_DURATION_MS / 1000}s cubic-bezier(0.34, 1.56, 0.64, 1)`;
+            cube.style.transform = `rotateX(${finalX}deg) rotateY(${finalY}deg)`;
+            
+            // 6. After the animation, show the text result and re-enable the button
             setTimeout(() => {
                 resultText.textContent = `${prefix} ${selectedValue}`;
                 startButton.disabled = false;
-
-                setTimeout(() => {
-                    reel.style.transition = 'none';
-                    const resetIndex = randomIndex + originalValues.length;
-                    const resetPosition = - (resetIndex * itemHeight) + (windowHeight / 2) - (itemHeight / 2);
-                    reel.style.transform = `translateY(${resetPosition}px)`;
-                }, 100);
-
             }, SPIN_DURATION_MS);
         };
 
-        return { run, cleanup, populateReel };
+        return { run, cleanup, reset };
     }
 
     // --- INITIALIZE EVENT LISTENERS ---
     menuButtons.forEach(button => {
         button.addEventListener('click', (e) => {
-            // Prevent default button action and use the view switcher
             e.preventDefault();
             showView(button.dataset.view);
         });
