@@ -24,6 +24,7 @@
             height: 220px;
             perspective: 1200px;
             margin: 1.5rem auto;
+            cursor: pointer; /* Add pointer cursor to indicate it's clickable */
         }
 
         #cube {
@@ -138,9 +139,9 @@
                     <p id="result-text" class="text-3xl font-bold text-violet-400 transition-all"></p>
                 </div>
 
-                <button id="startButton" class="w-full sm:w-auto mt-2 px-10 py-4 bg-violet-600 text-white font-bold text-lg rounded-lg hover:bg-violet-700 focus:outline-none focus:ring-4 focus:ring-violet-400/50 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105">
-                    Hodiť kockou
-                </button>
+                <div class="mt-2 h-10 flex items-center justify-center">
+                    <p id="prompt-text" class="text-gray-400 transition-opacity duration-300"></p>
+                </div>
             </div>
         </div>
     </div>
@@ -171,13 +172,15 @@
     const menuButtons = document.querySelectorAll('.menu-button');
     const backButton = document.getElementById('back-button');
     const selectionTitle = document.getElementById('selection-title');
+    const diceContainer = document.getElementById('dice-scene-container');
     const cube = document.getElementById('cube');
     const cubeFaces = document.querySelectorAll('.cube-face');
-    const startButton = document.getElementById('startButton');
     const resultText = document.getElementById('result-text');
+    const promptText = document.getElementById('prompt-text');
 
     const SPIN_DURATION_MS = 4000; // Must match the CSS transition duration in ms
     let currentSelectionRunner = null;
+    let isSpinning = false; // State to prevent multiple rolls
 
     // --- VIEW SWITCHING ---
     function showView(viewId) {
@@ -209,11 +212,15 @@
         const source = dataSources[viewId];
         currentSelectionRunner = createDiceRunner(source.values, source.resultPrefix);
         selectionTitle.textContent = source.title;
+        
+        // The main trigger is now the dice container
+        diceContainer.onclick = () => {
+            if (!isSpinning) {
+                currentSelectionRunner.run();
+            }
+        };
+
         currentSelectionRunner.reset();
-        startButton.onclick = () => currentSelectionRunner.run();
-        resultText.textContent = ''; // Clear previous result
-        startButton.disabled = false; // Ensure button is enabled
-        startButton.textContent = 'Hodiť kockou';
     }
 
     // --- 3D DICE LOGIC ---
@@ -233,15 +240,23 @@
             cube.style.transform = `rotateX(0deg) rotateY(0deg)`;
             cubeFaces.forEach(face => face.textContent = '');
             cube.querySelector('.front').textContent = '?';
+            resultText.textContent = '';
+            promptText.textContent = 'Kliknite na kocku pre hodenie';
+            promptText.style.opacity = '1';
+            isSpinning = false;
         };
 
         const cleanup = () => {
             reset();
+            diceContainer.onclick = null; // Remove listener on cleanup
         };
 
         const run = () => {
-            startButton.disabled = true;
+            if (isSpinning) return; // Guard against re-triggering
+            isSpinning = true;
+            
             resultText.textContent = '';
+            promptText.style.opacity = '0'; // Hide prompt during spin
 
             // 1. Shuffle the source values to get a random order
             const shuffledValues = [...values].sort(() => 0.5 - Math.random());
@@ -249,7 +264,6 @@
             // 2. Populate all 6 faces with different values
             faceRotations.forEach((faceInfo, index) => {
                 const faceElement = cube.querySelector(`.${faceInfo.name}`);
-                // Use the modulo operator to loop through values if there are fewer than 6
                 faceElement.textContent = shuffledValues[index % shuffledValues.length];
             });
             
@@ -268,10 +282,12 @@
             cube.style.transition = `transform ${SPIN_DURATION_MS / 1000}s cubic-bezier(0.34, 1.56, 0.64, 1)`;
             cube.style.transform = `rotateX(${finalX}deg) rotateY(${finalY}deg)`;
             
-            // 6. After the animation, show the text result and re-enable the button
+            // 6. After the animation, show the text result and re-enable rolling
             setTimeout(() => {
                 resultText.textContent = `${prefix} ${selectedValue}`;
-                startButton.disabled = false;
+                promptText.textContent = 'Kliknite pre ďalší hod';
+                promptText.style.opacity = '1';
+                isSpinning = false; // Allow rolling again
             }, SPIN_DURATION_MS);
         };
 
